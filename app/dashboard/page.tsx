@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import {
 	Container,
 	Box,
@@ -16,34 +18,11 @@ import {
 } from "@mui/material";
 import { LogOut, LayoutDashboard, Bell, Plus } from "lucide-react";
 
-// ===== Mock Router (Preview Only) =====
-const useRouterMock = () => ({
-	push: (path: string) => {
-		if (!path) return;
-		console.log("Navigasi ke:", path);
-		// Di sandbox preview, kita paksa pindah halaman menggunakan origin
-		if (typeof window !== "undefined") {
-			const targetUrl = path.startsWith("/")
-				? window.location.origin + path
-				: path;
-			window.location.href = targetUrl;
-		}
-	},
-});
-
-// ===== Mock Supabase (Preview Only) =====
-const supabaseMock = {
-	auth: {
-		getSession: async () => ({
-			data: { session: { user: { email: "admin@kalbe.com" } } },
-			error: null,
-		}),
-		signOut: async () => {
-			console.log("Supabase: Signing out...");
-			return { error: null };
-		},
-	},
-};
+/**
+ * Komponen Dashboard Utama (Versi Real RBAC)
+ * Mengimplementasikan pengambilan data peran (role) langsung dari database
+ * untuk menentukan hak akses pengguna pada antarmuka.
+ */
 
 const INFO_CARDS = [
 	{ label: "Draft", count: 0, color: "#64748b" },
@@ -53,56 +32,94 @@ const INFO_CARDS = [
 ];
 
 export default function DashboardPage() {
-	const router = useRouterMock();
-	const [user, setUser] = useState<{ email: string } | null>(null);
+	const router = useRouter();
+
+	// State Management
+	const [user, setUser] = useState<{ email: string; id: string } | null>(null);
+	const [role, setRole] = useState<string | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-	// ===== Session Check =====
+	/**
+	 * Efek samping untuk validasi sesi dan inisialisasi profil pengguna
+	 */
 	useEffect(() => {
-		const checkSession = async () => {
+		const initializeDashboard = async () => {
 			try {
-				const { data, error } = await supabaseMock.auth.getSession();
-				if (error || !data?.session) {
+				// 1. Validasi Sesi Autentikasi
+				const {
+					data: { session },
+					error: sessionError,
+				} = await supabase.auth.getSession();
+
+				if (sessionError || !session) {
+					console.warn("Sesi tidak ditemukan, mengalihkan ke halaman login.");
 					router.push("/");
 					return;
 				}
-				setUser(data.session.user);
+
+				setUser({
+					id: session.user.id,
+					email: session.user.email || "",
+				});
+
+				// 2. Pengambilan Data Profil dan Relasi Role (RBAC)
+				// Mengambil nama role melalui relasi tabel profiles ke roles
+				const { data: profile, error: profileError } = await supabase
+					.from("profiles")
+					.select("role_id, roles(name)")
+					.eq("id", session.user.id)
+					.single();
+
+				// Keamanan: Jika profil atau role tidak ditemukan, akses ditolak
+				if (profileError || !profile || !profile.roles) {
+					console.error(
+						"Gagal mendapatkan profil pengguna atau peran tidak valid.",
+					);
+					router.push("/");
+					return;
+				}
+
+				// Menetapkan nama peran dari hasil join query
+				const roleName = (profile.roles as any)?.name;
+				setRole(roleName);
 				setLoading(false);
 			} catch (err) {
+				console.error("Kesalahan sistem saat inisialisasi dashboard:", err);
 				router.push("/");
 			}
 		};
-		checkSession();
-	}, []);
 
-	// ===== Logout Handler (Solid Version) =====
+		initializeDashboard();
+	}, [router]);
+
+	/**
+	 * Fungsi untuk menangani pemutusan sesi (Logout)
+	 */
 	const handleLogout = async () => {
 		setIsLoggingOut(true);
 		try {
-			// 1. Panggil fungsi signOut dari Supabase
-			const { error } = await supabaseMock.auth.signOut();
-
+			const { error } = await supabase.auth.signOut();
 			if (error) throw error;
 
-			// 2. Clear state lokal (opsional tapi bagus buat security)
 			setUser(null);
-
-			// 3. Tendang ke halaman login
-			console.log("Logout sukses, mengalihkan...");
 			router.push("/");
+			router.refresh(); // Memastikan state aplikasi di-reset secara menyeluruh
 		} catch (err) {
-			console.error("Gagal logout:", err);
+			console.error("Kesalahan saat proses keluar:", err);
 			setIsLoggingOut(false);
 		}
 	};
+
+	// Logika Akses Dinamis: Membatasi fitur berdasarkan peran
+	const canCreateContent = role === "Admin" || role === "Creator";
 
 	if (loading || isLoggingOut) {
 		return (
 			<Box className="flex h-screen w-screen flex-col items-center justify-center bg-slate-50 gap-4">
 				<CircularProgress size={40} thickness={4} sx={{ color: "#2563eb" }} />
-				<Typography className="text-slate-500 font-medium animate-pulse">
-					{isLoggingOut ? "Sedang keluar..." : "Memuat Dashboard..."}
+				<Typography className="text-slate-500 font-medium">
+					{isLoggingOut ? "Sedang keluar..." : "Memverifikasi identitas..."}
 				</Typography>
 			</Box>
 		);
@@ -127,7 +144,7 @@ export default function DashboardPage() {
 									Content Workflow System
 								</Typography>
 								<Typography className="text-slate-400 text-xs uppercase tracking-widest font-semibold">
-									Admin Panel
+									Portal Internal
 								</Typography>
 							</Box>
 						</Box>
@@ -156,14 +173,14 @@ export default function DashboardPage() {
 										fontWeight: "bold",
 									}}
 								>
-									{user?.email.charAt(0).toUpperCase()}
+									{user?.email?.charAt(0).toUpperCase()}
 								</Avatar>
 								<Box className="hidden sm:block">
 									<Typography className="text-sm font-semibold text-slate-800">
 										{user?.email}
 									</Typography>
-									<Typography className="text-xs text-slate-400">
-										Administrator
+									<Typography className="text-xs text-blue-600 font-bold uppercase tracking-tighter">
+										{role}
 									</Typography>
 								</Box>
 								<Button
@@ -209,20 +226,24 @@ export default function DashboardPage() {
 								<span className="text-blue-600 font-bold">{user?.email}</span>
 							</Typography>
 						</Box>
-						<Button
-							variant="contained"
-							startIcon={<Plus size={18} />}
-							sx={{
-								backgroundColor: "#0f172a",
-								borderRadius: "12px",
-								padding: "10px 24px",
-								textTransform: "none",
-								fontWeight: "bold",
-								"&:hover": { backgroundColor: "#1e293b" },
-							}}
-						>
-							Buat Konten Baru
-						</Button>
+
+						{/* Menampilkan tombol aksi berdasarkan peran pengguna */}
+						{canCreateContent && (
+							<Button
+								variant="contained"
+								startIcon={<Plus size={18} />}
+								sx={{
+									backgroundColor: "#0f172a",
+									borderRadius: "12px",
+									padding: "10px 24px",
+									textTransform: "none",
+									fontWeight: "bold",
+									"&:hover": { backgroundColor: "#1e293b" },
+								}}
+							>
+								Buat Konten Baru
+							</Button>
+						)}
 					</Box>
 
 					<Box className="mt-12 p-16 border-2 border-dashed border-slate-100 rounded-[20px] bg-slate-50/50 flex flex-col items-center justify-center text-center">
@@ -230,11 +251,12 @@ export default function DashboardPage() {
 							<LayoutDashboard size={32} />
 						</Box>
 						<Typography variant="h6" className="text-slate-800 font-bold mb-1">
-							Data Masih Kosong
+							Integrasi Database Berhasil
 						</Typography>
 						<Typography variant="body2" className="text-slate-400 max-w-xs">
-							Langkah berikutnya: Implementasi TanStack Table untuk menampilkan
-							data dari Supabase.
+							Identitas Anda terverifikasi sebagai{" "}
+							<span className="font-bold text-blue-600">{role}</span>. Anda
+							sekarang dapat melanjutkan ke tahap implementasi TanStack Table.
 						</Typography>
 					</Box>
 				</Paper>
