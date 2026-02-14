@@ -191,10 +191,29 @@ export default function DashboardPage() {
 					</Box>
 				</Paper>
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-					<StatsCard label="Draft" count={0} color="#64748b" />
-					<StatsCard label="Review" count={0} color="#f59e0b" />
-					<StatsCard label="Published" count={0} color="#2563eb" />
-					<StatsCard label="Rejected" count={0} color="#e11d48" />
+					<StatsCard
+						label="Draft"
+						count={contents.filter((c) => c.status === "draft").length}
+						color="#64748b"
+					/>
+
+					<StatsCard
+						label="Review"
+						count={contents.filter((c) => c.status === "review").length}
+						color="#f59e0b"
+					/>
+
+					<StatsCard
+						label="Published"
+						count={contents.filter((c) => c.status === "published").length}
+						color="#2563eb"
+					/>
+
+					<StatsCard
+						label="Rejected"
+						count={contents.filter((c) => c.status === "rejected").length}
+						color="#e11d48"
+					/>
 				</div>
 			</Container>
 		</div>
