@@ -9,6 +9,7 @@ import {
 	Paper,
 	TableContainer,
 	Typography,
+	Button,
 } from "@mui/material";
 
 interface Content {
@@ -22,7 +23,13 @@ const formatDate = (date: string) => {
 	return date.split("T")[0];
 };
 
-export default function ContentTable({ data }: { data: Content[] }) {
+export default function ContentTable({
+	data,
+	onDelete,
+}: {
+	data: Content[];
+	onDelete: (id: string) => void;
+}) {
 	if (!data || data.length === 0) {
 		return <Typography variant="body2">Data konten belum tersedia.</Typography>;
 	}
@@ -35,6 +42,7 @@ export default function ContentTable({ data }: { data: Content[] }) {
 						<TableCell>Judul</TableCell>
 						<TableCell>Status</TableCell>
 						<TableCell>Tanggal</TableCell>
+						<TableCell>Aksi</TableCell>
 					</TableRow>
 				</TableHead>
 				<TableBody>
@@ -42,7 +50,19 @@ export default function ContentTable({ data }: { data: Content[] }) {
 						<TableRow key={row.id}>
 							<TableCell>{row.title}</TableCell>
 							<TableCell>{row.status}</TableCell>
-							<TableCell>{formatDate(row.created_at)}</TableCell>
+							<TableCell>
+								{new Date(row.created_at).toLocaleDateString("id-ID")}
+							</TableCell>
+							<TableCell>
+								<Button
+									color="error"
+									variant="outlined"
+									size="small"
+									onClick={() => onDelete(row.id)}
+								>
+									Delete
+								</Button>
+							</TableCell>
 						</TableRow>
 					))}
 				</TableBody>

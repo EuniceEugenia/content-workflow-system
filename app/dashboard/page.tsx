@@ -140,6 +140,18 @@ export default function DashboardPage() {
 		}
 	};
 
+	const handleDelete = async (id: string) => {
+		const { error } = await supabase.from("contents").delete().eq("id", id);
+
+		if (error) {
+			console.error("DELETE ERROR:", error.message);
+			return;
+		}
+
+		// Refresh state tanpa reload page
+		setContents((prev) => prev.filter((item) => item.id !== id));
+	};
+
 	// Logika Akses Dinamis: Membatasi fitur berdasarkan peran
 	const canCreateContent = role === "Admin" || role === "Creator";
 
@@ -201,7 +213,7 @@ export default function DashboardPage() {
 					</Box>
 
 					<Box className="mt-12">
-						<ContentTable data={contents} />
+						<ContentTable data={contents} onDelete={handleDelete} />
 					</Box>
 				</Paper>
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-6">
