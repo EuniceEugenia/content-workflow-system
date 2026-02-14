@@ -87,10 +87,21 @@ export default function DashboardPage() {
 				// Menetapkan nama peran dari hasil join query
 				const roleName = (profile.roles as any)?.name;
 				setRole(roleName);
-				const { data: contentData, error: contentError } = await supabase
+				let query = supabase
 					.from("contents")
 					.select("id, title, status, created_at")
 					.order("created_at", { ascending: false });
+
+				// === ROLE FILTERING ===
+				if (roleName === "Reviewer") {
+					query = query.eq("status", "review");
+				}
+
+				if (roleName === "Creator") {
+					query = query.eq("author_id", session.user.id);
+				}
+
+				const { data: contentData, error: contentError } = await query;
 
 				if (contentError) {
 					console.error("Gagal fetch contents:", contentError);
