@@ -17,6 +17,9 @@ import {
 	Divider,
 } from "@mui/material";
 import { LogOut, LayoutDashboard, Bell, Plus } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import StatsCard from "@/components/StatsCard";
+import ContentTable from "@/components/ContentTable";
 
 /**
  * Komponen Dashboard Utama (Versi Real RBAC)
@@ -37,6 +40,7 @@ export default function DashboardPage() {
 	// State Management
 	const [user, setUser] = useState<{ email: string; id: string } | null>(null);
 	const [role, setRole] = useState<string | null>(null);
+	const [contents, setContents] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -83,6 +87,18 @@ export default function DashboardPage() {
 				// Menetapkan nama peran dari hasil join query
 				const roleName = (profile.roles as any)?.name;
 				setRole(roleName);
+				const { data: contentData, error: contentError } = await supabase
+					.from("contents")
+					.select("id, title, status, created_at")
+					.order("created_at", { ascending: false });
+
+				if (contentError) {
+					console.error("Gagal fetch contents:", contentError);
+				} else {
+					console.log("CONTENT FROM DB:", contentData);
+					setContents(contentData || []);
+				}
+
 				setLoading(false);
 			} catch (err) {
 				console.error("Kesalahan sistem saat inisialisasi dashboard:", err);
@@ -127,88 +143,12 @@ export default function DashboardPage() {
 
 	return (
 		<div className="min-h-screen bg-[#fcfcfd]">
-			{/* ===== NAVBAR ===== */}
-			<AppBar
-				position="sticky"
-				elevation={0}
-				sx={{ backgroundColor: "#ffffff", borderBottom: "1px solid #e2e8f0" }}
-			>
-				<Container maxWidth="lg">
-					<Toolbar className="px-0 py-3 flex justify-between items-center">
-						<Box className="flex items-center gap-4">
-							<Box className="w-11 h-11 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md">
-								<LayoutDashboard size={22} />
-							</Box>
-							<Box>
-								<Typography className="font-extrabold text-slate-900 leading-tight">
-									Content Workflow System
-								</Typography>
-								<Typography className="text-slate-400 text-xs uppercase tracking-widest font-semibold">
-									Portal Internal
-								</Typography>
-							</Box>
-						</Box>
-
-						<Box className="flex items-center gap-4">
-							<IconButton
-								size="small"
-								sx={{
-									backgroundColor: "#f1f5f9",
-									"&:hover": { backgroundColor: "#e2e8f0" },
-								}}
-							>
-								<Bell size={18} />
-							</IconButton>
-							<Divider
-								orientation="vertical"
-								flexItem
-								sx={{ height: 24, alignSelf: "center" }}
-							/>
-							<Box className="flex items-center gap-3">
-								<Avatar
-									sx={{
-										width: 36,
-										height: 36,
-										bgcolor: "#2563eb",
-										fontWeight: "bold",
-									}}
-								>
-									{user?.email?.charAt(0).toUpperCase()}
-								</Avatar>
-								<Box className="hidden sm:block">
-									<Typography className="text-sm font-semibold text-slate-800">
-										{user?.email}
-									</Typography>
-									<Typography className="text-xs text-blue-600 font-bold uppercase tracking-tighter">
-										{role}
-									</Typography>
-								</Box>
-								<Button
-									onClick={handleLogout}
-									variant="outlined"
-									size="small"
-									disabled={isLoggingOut}
-									startIcon={<LogOut size={16} />}
-									sx={{
-										borderColor: "#fecaca",
-										color: "#dc2626",
-										textTransform: "none",
-										fontWeight: "bold",
-										borderRadius: "8px",
-										"&:hover": {
-											borderColor: "#fca5a5",
-											backgroundColor: "#fef2f2",
-										},
-									}}
-								>
-									Logout
-								</Button>
-							</Box>
-						</Box>
-					</Toolbar>
-				</Container>
-			</AppBar>
-
+			<Navbar
+				email={user?.email || ""}
+				role={role || ""}
+				onLogout={handleLogout}
+				isLoggingOut={isLoggingOut}
+			/>
 			{/* ===== MAIN CONTENT ===== */}
 			<Container maxWidth="lg" className="py-10">
 				<Paper
@@ -246,52 +186,15 @@ export default function DashboardPage() {
 						)}
 					</Box>
 
-					<Box className="mt-12 p-16 border-2 border-dashed border-slate-100 rounded-[20px] bg-slate-50/50 flex flex-col items-center justify-center text-center">
-						<Box className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-slate-300 mb-4">
-							<LayoutDashboard size={32} />
-						</Box>
-						<Typography variant="h6" className="text-slate-800 font-bold mb-1">
-							Integrasi Database Berhasil
-						</Typography>
-						<Typography variant="body2" className="text-slate-400 max-w-xs">
-							Identitas Anda terverifikasi sebagai{" "}
-							<span className="font-bold text-blue-600">{role}</span>. Anda
-							sekarang dapat melanjutkan ke tahap implementasi TanStack Table.
-						</Typography>
+					<Box className="mt-12">
+						<ContentTable data={contents} />
 					</Box>
 				</Paper>
-
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-					{INFO_CARDS.map((item, idx) => (
-						<Paper
-							key={idx}
-							elevation={0}
-							className="p-5 rounded-2xl border border-slate-200 bg-white flex items-center justify-between"
-						>
-							<Box>
-								<Typography className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-									{item.label}
-								</Typography>
-								<Typography variant="h5" className="font-black text-slate-900">
-									{item.count}
-								</Typography>
-							</Box>
-							<Box
-								sx={{
-									width: 32,
-									height: 32,
-									borderRadius: "8px",
-									backgroundColor: `${item.color}15`,
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "center",
-									color: item.color,
-								}}
-							>
-								<Plus size={14} />
-							</Box>
-						</Paper>
-					))}
+					<StatsCard label="Draft" count={0} color="#64748b" />
+					<StatsCard label="Review" count={0} color="#f59e0b" />
+					<StatsCard label="Published" count={0} color="#2563eb" />
+					<StatsCard label="Rejected" count={0} color="#e11d48" />
 				</div>
 			</Container>
 		</div>
