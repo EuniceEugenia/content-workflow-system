@@ -20,6 +20,7 @@ import { LogOut, LayoutDashboard, Bell, Plus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import StatsCard from "@/components/StatsCard";
 import ContentTable from "@/components/ContentTable";
+import CreateContentModal from "@/components/CreateContentModal";
 
 /**
  * Komponen Dashboard Utama (Versi Real RBAC)
@@ -43,6 +44,7 @@ export default function DashboardPage() {
 	const [contents, setContents] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [isLoggingOut, setIsLoggingOut] = useState(false);
+	const [openModal, setOpenModal] = useState(false);
 
 	/**
 	 * Efek samping untuk validasi sesi dan inisialisasi profil pengguna
@@ -183,6 +185,7 @@ export default function DashboardPage() {
 							<Button
 								variant="contained"
 								startIcon={<Plus size={18} />}
+								onClick={() => setOpenModal(true)}
 								sx={{
 									backgroundColor: "#0f172a",
 									borderRadius: "12px",
@@ -227,6 +230,12 @@ export default function DashboardPage() {
 					/>
 				</div>
 			</Container>
+			<CreateContentModal
+				open={openModal}
+				onClose={() => setOpenModal(false)}
+				userId={user?.id || ""}
+				onSuccess={() => window.location.reload()}
+			/>
 		</div>
 	);
 }
