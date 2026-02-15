@@ -26,9 +26,11 @@ const formatDate = (date: string) => {
 export default function ContentTable({
 	data,
 	onDelete,
+	onEdit,
 }: {
 	data: Content[];
 	onDelete: (id: string) => void;
+	onEdit?: (content: Content) => void;
 }) {
 	if (!data || data.length === 0) {
 		return <Typography variant="body2">Data konten belum tersedia.</Typography>;
@@ -54,6 +56,15 @@ export default function ContentTable({
 								{new Date(row.created_at).toLocaleDateString("id-ID")}
 							</TableCell>
 							<TableCell>
+								<Button
+									variant="outlined"
+									size="small"
+									onClick={() => onEdit && onEdit(row)}
+									sx={{ mr: 1 }}
+								>
+									Edit
+								</Button>
+								
 								<Button
 									color="error"
 									variant="outlined"

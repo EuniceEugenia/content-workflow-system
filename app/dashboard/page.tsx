@@ -21,6 +21,7 @@ import Navbar from "@/components/Navbar";
 import StatsCard from "@/components/StatsCard";
 import ContentTable from "@/components/ContentTable";
 import CreateContentModal from "@/components/CreateContentModal";
+import EditContentModal from "@/components/EditContentModal";
 
 /**
  * Komponen Dashboard Utama (Versi Real RBAC)
@@ -45,6 +46,8 @@ export default function DashboardPage() {
 	const [loading, setLoading] = useState(true);
 	const [isLoggingOut, setIsLoggingOut] = useState(false);
 	const [openModal, setOpenModal] = useState(false);
+	const [selectedContent, setSelectedContent] = useState<any>(null);
+	const [openEditModal, setOpenEditModal] = useState(false);
 
 	/**
 	 * Efek samping untuk validasi sesi dan inisialisasi profil pengguna
@@ -213,7 +216,14 @@ export default function DashboardPage() {
 					</Box>
 
 					<Box className="mt-12">
-						<ContentTable data={contents} onDelete={handleDelete} />
+						<ContentTable
+							data={contents}
+							onDelete={handleDelete}
+							onEdit={(content) => {
+								setSelectedContent(content);
+								setOpenEditModal(true);
+							}}
+						/>
 					</Box>
 				</Paper>
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-6">
@@ -242,11 +252,22 @@ export default function DashboardPage() {
 					/>
 				</div>
 			</Container>
+
 			<CreateContentModal
 				open={openModal}
 				onClose={() => setOpenModal(false)}
 				userId={user?.id || ""}
 				onSuccess={() => window.location.reload()}
+			/>
+
+			<EditContentModal
+				open={openEditModal}
+				onClose={() => setOpenEditModal(false)}
+				content={selectedContent}
+				onSuccess={() => {
+					setOpenEditModal(false);
+					window.location.reload();
+				}}
 			/>
 		</div>
 	);
