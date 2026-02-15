@@ -48,6 +48,7 @@ export default function DashboardPage() {
 	const [openModal, setOpenModal] = useState(false);
 	const [selectedContent, setSelectedContent] = useState<any>(null);
 	const [openEditModal, setOpenEditModal] = useState(false);
+	const [stats, setStats] = useState<any>(null);
 
 	/**
 	 * Efek samping untuk validasi sesi dan inisialisasi profil pengguna
@@ -113,6 +114,17 @@ export default function DashboardPage() {
 				} else {
 					console.log("CONTENT FROM DB:", contentData);
 					setContents(contentData || []);
+				}
+
+				const { data: statsData, error: statsError } = await supabase.rpc(
+					"get_dashboard_stats",
+				);
+
+				console.log("RPC RAW RESPONSE:", statsData);
+				console.log("RPC ERROR:", statsError);
+
+				if (!statsError && statsData) {
+					setStats(statsData[0]);
 				}
 
 				setLoading(false);
@@ -231,27 +243,23 @@ export default function DashboardPage() {
 					</Box>
 				</Paper>
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-					<StatsCard
-						label="Draft"
-						count={contents.filter((c) => c.status === "draft").length}
-						color="#64748b"
-					/>
+					<StatsCard label="Draft" count={stats?.draft || 0} color="#64748b" />
 
 					<StatsCard
 						label="Review"
-						count={contents.filter((c) => c.status === "review").length}
+						count={stats?.review || 0}
 						color="#f59e0b"
 					/>
 
 					<StatsCard
 						label="Published"
-						count={contents.filter((c) => c.status === "published").length}
+						count={stats?.published || 0}
 						color="#2563eb"
 					/>
 
 					<StatsCard
 						label="Rejected"
-						count={contents.filter((c) => c.status === "rejected").length}
+						count={stats?.rejected || 0}
 						color="#e11d48"
 					/>
 				</div>
