@@ -161,7 +161,11 @@ export default function DashboardPage() {
 	if (loading || isLoggingOut) {
 		return (
 			<Box className="flex h-screen w-screen flex-col items-center justify-center bg-slate-50 gap-4">
-				<CircularProgress size={40} thickness={4} sx={{ color: "#2563eb" }} />
+				<CircularProgress
+					sx={{ width: 40, height: 40, color: "#2563eb" }}
+					thickness={4}
+				/>
+
 				<Typography className="text-slate-500 font-medium">
 					{isLoggingOut ? "Sedang keluar..." : "Memverifikasi identitas..."}
 				</Typography>
