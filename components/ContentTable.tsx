@@ -26,6 +26,7 @@ import {
 	MenuItem,
 	FormControl,
 	InputLabel,
+	Button,
 } from "@mui/material";
 
 import { useState, useMemo } from "react";
@@ -37,7 +38,15 @@ interface Content {
 	created_at: string;
 }
 
-export default function ContentTable({ data }: { data: Content[] }) {
+export default function ContentTable({
+	data,
+	onDelete,
+	onEdit,
+}: {
+	data: Content[];
+	onDelete: (id: string) => void;
+	onEdit: (content: Content) => void;
+}) {
 	const [globalFilter, setGlobalFilter] = useState("");
 	const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -56,8 +65,33 @@ export default function ContentTable({ data }: { data: Content[] }) {
 				header: "Tanggal",
 				cell: ({ row }) => row.original.created_at.split("T")[0],
 			},
+			{
+				id: "actions",
+				header: "Aksi",
+				cell: ({ row }) => (
+					<>
+						<Button
+							size="small"
+							variant="outlined"
+							onClick={() => onEdit(row.original)}
+							sx={{ mr: 1 }}
+						>
+							Edit
+						</Button>
+
+						<Button
+							size="small"
+							variant="outlined"
+							color="error"
+							onClick={() => onDelete(row.original.id)}
+						>
+							Delete
+						</Button>
+					</>
+				),
+			},
 		],
-		[],
+		[onDelete, onEdit],
 	);
 
 	const table = useReactTable({
