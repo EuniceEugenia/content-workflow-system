@@ -10,18 +10,16 @@ import {
 	Button,
 	Paper,
 	CircularProgress,
-	AppBar,
-	Toolbar,
-	Avatar,
-	IconButton,
-	Divider,
 } from "@mui/material";
-import { LogOut, LayoutDashboard, Bell, Plus } from "lucide-react";
+
+import { Plus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import StatsCard from "@/components/StatsCard";
 import ContentTable from "@/components/ContentTable";
 import CreateContentModal from "@/components/CreateContentModal";
 import EditContentModal from "@/components/EditContentModal";
+import type { DashboardStats } from "@/types/stats";
+import type { ContentListItem } from "@/types/content";
 
 /**
  * Komponen Dashboard Utama (Versi Real RBAC)
@@ -29,26 +27,26 @@ import EditContentModal from "@/components/EditContentModal";
  * untuk menentukan hak akses pengguna pada antarmuka.
  */
 
-const INFO_CARDS = [
-	{ label: "Draft", count: 0, color: "#64748b" },
-	{ label: "Review", count: 0, color: "#f59e0b" },
-	{ label: "Published", count: 0, color: "#2563eb" },
-	{ label: "Rejected", count: 0, color: "#e11d48" },
-];
+// const INFO_CARDS = [
+// 	{ label: "Draft", count: 0, color: "#64748b" },
+// 	{ label: "Review", count: 0, color: "#f59e0b" },
+// 	{ label: "Published", count: 0, color: "#2563eb" },
+// 	{ label: "Rejected", count: 0, color: "#e11d48" },
+// ];
 
 export default function DashboardPage() {
 	const router = useRouter();
 
 	// State Management
 	const [user, setUser] = useState<{ email: string; id: string } | null>(null);
-	const [role, setRole] = useState<string | null>(null);
-	const [contents, setContents] = useState<any[]>([]);
+	const [role] = useState<string | null>(null);
+	const [contents, setContents] = useState<ContentListItem[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [isLoggingOut, setIsLoggingOut] = useState(false);
 	const [openModal, setOpenModal] = useState(false);
-	const [selectedContent, setSelectedContent] = useState<any>(null);
+	const [selectedContent, setSelectedContent] = useState<ContentListItem | null>(null);
 	const [openEditModal, setOpenEditModal] = useState(false);
-	const [stats, setStats] = useState<any>(null);
+	const [stats, setStats] = useState<DashboardStats | null>(null);
 
 	/**
 	 * Efek samping untuk validasi sesi dan inisialisasi profil pengguna
@@ -91,8 +89,9 @@ export default function DashboardPage() {
 				}
 
 				// Menetapkan nama peran dari hasil join query
-				const roleName = (profile.roles as any)?.name;
-				setRole(roleName);
+				const roleName =
+					(profile.roles as { name: string }[] | null)?.[0]?.name ?? null;
+
 				let query = supabase
 					.from("contents")
 					.select("id, title, status, created_at")
@@ -120,11 +119,8 @@ export default function DashboardPage() {
 					"get_dashboard_stats",
 				);
 
-				console.log("RPC RAW RESPONSE:", statsData);
-				console.log("RPC ERROR:", statsError);
-
-				if (!statsError && statsData) {
-					setStats(statsData[0]);
+				if (!statsError && statsData && Array.isArray(statsData)) {
+					setStats(statsData[0] as DashboardStats);
 				}
 
 				setLoading(false);

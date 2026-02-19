@@ -30,27 +30,28 @@ import {
 } from "@mui/material";
 
 import { useState, useMemo } from "react";
+import type { ContentListItem } from "@/types/content";
 
-interface Content {
-	id: string;
-	title: string;
-	status: string;
-	created_at: string;
-}
+// interface Content {
+// 	id: string;
+// 	title: string;
+// 	status: string;
+// 	created_at: string;
+// }
 
 export default function ContentTable({
 	data,
 	onDelete,
 	onEdit,
 }: {
-	data: Content[];
+	data: ContentListItem[];
 	onDelete: (id: string) => void;
-	onEdit: (content: Content) => void;
+	onEdit: (content: ContentListItem) => void;
 }) {
 	const [globalFilter, setGlobalFilter] = useState("");
 	const [sorting, setSorting] = useState<SortingState>([]);
 
-	const columns = useMemo<ColumnDef<Content>[]>(
+	const columns = useMemo<ColumnDef<ContentListItem>[]>(
 		() => [
 			{
 				accessorKey: "title",
@@ -184,10 +185,7 @@ export default function ContentTable({
 							<TableRow key={row.id}>
 								{row.getVisibleCells().map((cell) => (
 									<TableCell key={cell.id}>
-										{flexRender(
-											cell.column.columnDef.cell,
-											cell.getContext(),
-										)}
+										{flexRender(cell.column.columnDef.cell, cell.getContext())}
 									</TableCell>
 								))}
 							</TableRow>
