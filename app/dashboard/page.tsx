@@ -21,25 +21,13 @@ import EditContentModal from "@/components/EditContentModal";
 import type { DashboardStats } from "@/types/stats";
 import type { ContentListItem } from "@/types/content";
 
-/**
- * Komponen Dashboard Utama (Versi Real RBAC)
- * Mengimplementasikan pengambilan data peran (role) langsung dari database
- * untuk menentukan hak akses pengguna pada antarmuka.
- */
-
-// const INFO_CARDS = [
-// 	{ label: "Draft", count: 0, color: "#64748b" },
-// 	{ label: "Review", count: 0, color: "#f59e0b" },
-// 	{ label: "Published", count: 0, color: "#2563eb" },
-// 	{ label: "Rejected", count: 0, color: "#e11d48" },
-// ];
 
 export default function DashboardPage() {
 	const router = useRouter();
 
 	// State Management
 	const [user, setUser] = useState<{ email: string; id: string } | null>(null);
-	const [role] = useState<string | null>(null);
+	const [role, setRole] = useState<string | null>(null);
 	const [contents, setContents] = useState<ContentListItem[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -90,7 +78,9 @@ export default function DashboardPage() {
 
 				// Menetapkan nama peran dari hasil join query
 				const roleName =
-					(profile.roles as { name: string }[] | null)?.[0]?.name ?? null;
+					(profile.roles as unknown as { name: string } | null)?.name ?? null;
+
+				setRole(roleName);
 
 				let query = supabase
 					.from("contents")
