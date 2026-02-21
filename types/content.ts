@@ -1,4 +1,9 @@
-export type ContentStatus = "draft" | "review" | "rejected" | "published";
+export type ContentStatus =
+	| "draft"
+	| "review"
+	| "approved"
+	| "published"
+	| "rejected";
 
 export interface Content {
 	id: string;

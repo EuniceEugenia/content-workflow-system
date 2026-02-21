@@ -158,6 +158,66 @@ export default function DashboardPage() {
 		setContents((prev) => prev.filter((item) => item.id !== id));
 	};
 
+	// Creator submit draft → review
+	const handleSubmit = async (id: string) => {
+		const { error } = await supabase
+			.from("contents")
+			.update({ status: "review" })
+			.eq("id", id);
+
+		if (error) {
+			console.error("SUBMIT ERROR:", error.message);
+			return;
+		}
+
+		window.location.reload();
+	};
+
+	// Reviewer approve
+	const handleApprove = async (id: string) => {
+		const { error } = await supabase
+			.from("contents")
+			.update({ status: "approved" })
+			.eq("id", id);
+
+		if (error) {
+			console.error("APPROVE ERROR:", error.message);
+			return;
+		}
+
+		window.location.reload();
+	};
+
+	// Reviewer reject
+	const handleReject = async (id: string) => {
+		const { error } = await supabase
+			.from("contents")
+			.update({ status: "rejected" })
+			.eq("id", id);
+
+		if (error) {
+			console.error("REJECT ERROR:", error.message);
+			return;
+		}
+
+		window.location.reload();
+	};
+
+	// Admin publish
+	const handlePublish = async (id: string) => {
+		const { error } = await supabase
+			.from("contents")
+			.update({ status: "published" })
+			.eq("id", id);
+
+		if (error) {
+			console.error("PUBLISH ERROR:", error.message);
+			return;
+		}
+
+		window.location.reload();
+	};
+
 	// Logika Akses Dinamis: Membatasi fitur berdasarkan peran
 	const canCreateContent = role === "Admin" || role === "Creator";
 
@@ -168,10 +228,7 @@ export default function DashboardPage() {
 	if (loading || isLoggingOut) {
 		return (
 			<Box className="flex h-screen w-screen flex-col items-center justify-center bg-slate-50 gap-4">
-				<CircularProgress
-					sx={{ width: 40, height: 40, color: "#2563eb" }}
-					thickness={4}
-				/>
+				<CircularProgress size={40} thickness={4} sx={{ color: "#2563eb" }} />
 
 				<Typography className="text-slate-500 font-medium">
 					{isLoggingOut ? "Sedang keluar..." : "Memverifikasi identitas..."}
@@ -234,6 +291,11 @@ export default function DashboardPage() {
 								setSelectedContent(content);
 								setOpenEditModal(true);
 							}}
+							onSubmit={handleSubmit}
+							onApprove={handleApprove}
+							onReject={handleReject}
+							onPublish={handlePublish}
+							role={role}
 						/>
 					</Box>
 				</Paper>

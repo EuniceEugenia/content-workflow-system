@@ -32,21 +32,24 @@ import {
 import { useState, useMemo } from "react";
 import type { ContentListItem } from "@/types/content";
 
-// interface Content {
-// 	id: string;
-// 	title: string;
-// 	status: string;
-// 	created_at: string;
-// }
-
 export default function ContentTable({
 	data,
 	onDelete,
 	onEdit,
+	onSubmit,
+	onApprove,
+	onReject,
+	onPublish,
+	role,
 }: {
 	data: ContentListItem[];
 	onDelete: (id: string) => void;
 	onEdit: (content: ContentListItem) => void;
+	onSubmit: (id: string) => void;
+	onApprove: (id: string) => void;
+	onReject: (id: string) => void;
+	onPublish: (id: string) => void;
+	role: string | null;
 }) {
 	const [globalFilter, setGlobalFilter] = useState("");
 	const [sorting, setSorting] = useState<SortingState>([]);
@@ -71,28 +74,90 @@ export default function ContentTable({
 				header: "Aksi",
 				cell: ({ row }) => (
 					<>
-						<Button
-							size="small"
-							variant="outlined"
-							onClick={() => onEdit(row.original)}
-							sx={{ mr: 1 }}
-						>
-							Edit
-						</Button>
+						{role === "Creator" && row.original.status === "draft" && (
+							<Button
+								size="small"
+								variant="contained"
+								onClick={() => onSubmit(row.original.id)}
+								sx={{ mr: 1 }}
+							>
+								Submit
+							</Button>
+						)}
 
-						<Button
-							size="small"
-							variant="outlined"
-							color="error"
-							onClick={() => onDelete(row.original.id)}
-						>
-							Delete
-						</Button>
+						{role === "Reviewer" && row.original.status === "review" && (
+							<>
+								<Button
+									size="small"
+									variant="contained"
+									color="success"
+									onClick={() => onApprove(row.original.id)}
+									sx={{ mr: 1 }}
+								>
+									Approve
+								</Button>
+
+								<Button
+									size="small"
+									variant="contained"
+									color="error"
+									onClick={() => onReject(row.original.id)}
+									sx={{ mr: 1 }}
+								>
+									Reject
+								</Button>
+							</>
+						)}
+
+						{role === "Admin" && row.original.status === "approved" && (
+							<Button
+								size="small"
+								variant="contained"
+								onClick={() => onPublish(row.original.id)}
+								sx={{ mr: 1 }}
+							>
+								Publish
+							</Button>
+						)}
+						{/* CREATOR: Edit & Delete hanya draft */}
+						{role === "Creator" && row.original.status === "draft" && (
+							<>
+								<Button
+									size="small"
+									variant="outlined"
+									onClick={() => onEdit(row.original)}
+									sx={{ mr: 1 }}
+								>
+									Edit
+								</Button>
+
+								<Button
+									size="small"
+									variant="outlined"
+									color="error"
+									onClick={() => onDelete(row.original.id)}
+								>
+									Delete
+								</Button>
+							</>
+						)}
+
+						{/* ADMIN: hanya Delete */}
+						{role === "Admin" && (
+							<Button
+								size="small"
+								variant="outlined"
+								color="error"
+								onClick={() => onDelete(row.original.id)}
+							>
+								Delete
+							</Button>
+						)}
 					</>
 				),
 			},
 		],
-		[onDelete, onEdit],
+		[role, onSubmit, onApprove, onReject, onPublish, onDelete, onEdit],
 	);
 
 	const table = useReactTable({
