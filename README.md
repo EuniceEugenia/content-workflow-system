@@ -1,36 +1,240 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Content Workflow System  
+Mini Project #1 – Frontend Development
 
-## Getting Started
+A Role-Based Content Management System (CMS) built with **Next.js (App Router)** and **Supabase**.
 
-First, run the development server:
+This project implements:
+- Authentication  
+- Role-Based Access Control (RBAC)  
+- CRUD Operations  
+- Workflow System  
+- Table Features (Pagination, Sorting, Search)  
+- Storage Integration  
+- Row Level Security (RLS)  
+- Middleware Protection  
 
+---
+
+## 🏗 Tech Stack
+
+### Core
+- Next.js (App Router)
+- Supabase (PostgreSQL + Auth + Storage)
+
+### UI & State
+- Material UI
+- TailwindCSS
+- TanStack Table
+
+### Dev Tools
+- ESLint
+- Prettier
+- Git
+
+---
+
+## ✅ Features
+
+### 1️⃣ Authentication
+- Email & Password login via Supabase
+- SSR-compatible auth using `@supabase/ssr`
+- Middleware route protection
+- Protected `/dashboard` routes
+
+---
+
+### 2️⃣ RBAC (3 Roles)
+| Role     | Access |
+|----------|--------|
+| Admin    | Publish & delete content |
+| Creator  | Create, edit draft, submit for review |
+| Reviewer | Approve or reject content |
+
+Authorization enforced in:
+- Frontend (UI-level control)
+- Database (Row Level Security)
+
+---
+
+### 3️⃣ CRUD (contents table)
+- Create content (Draft)
+- Read content (based on role visibility)
+- Update (restricted by role & status)
+- Delete (restricted to Admin)
+
+---
+
+### 4️⃣ Workflow System
+Draft → Review → Approved → Published  
+↘ Rejected  
+
+Flow:
+- Creator creates **Draft**
+- Creator submits → **Review**
+- Reviewer approves → **Approved**
+- Reviewer rejects → **Rejected**
+- Admin publishes → **Published**
+
+All transitions are protected by RLS policies.
+
+---
+
+### 5️⃣ Table Features (TanStack Table)
+- Pagination
+- Sorting
+- Searching
+- Page Size selection
+
+---
+
+## 🗄 Supabase Configuration
+
+### 📌 Tables (Minimum 5 – Excluding `auth.users`)
+1. roles  
+2. profiles  
+3. contents  
+4. categories  
+5. attachments  
+
+All tables are relational.
+
+---
+
+### 📦 Storage Bucket
+- Bucket name: `content-files`
+- Linked via `file_path`
+- Access controlled via storage policies
+
+---
+
+### 🔐 RLS (Row Level Security)
+Enabled on:
+- `profiles`
+- `contents`
+
+Example policies:
+- Creator can update only own Draft
+- Reviewer can update only content in Review
+- Admin can publish Approved content
+- Reviewer cannot delete content
+
+Database-level protection ensures security even if frontend is bypassed.
+
+---
+
+## 🛡 Middleware Protection
+- Blocks unauthenticated access to `/dashboard`
+- Redirects authenticated users away from `/`
+- Uses SSR-compatible Supabase client
+
+---
+
+## 🗂 Database Schema (Simplified)
+
+### roles
+| id | name |
+|----|------|
+| 1  | Admin |
+| 2  | Creator |
+| 3  | Reviewer |
+
+---
+
+### profiles
+| id (UUID from auth.users) | full_name | role_id |
+
+---
+
+### contents
+| id | title | body | status | author_id | reviewer_id | category_id | created_at | file_path |
+
+---
+
+## ▶️ How To Run
+
+### 1️⃣ Clone Repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd content-workflow-system
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2️⃣ Install Dependencies
+```bash
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+### 3️⃣ Setup Supabase
+1. Create a Supabase project  
+2. Enable Email/Password authentication  
+3. Create tables:
+   - roles
+   - profiles
+   - contents
+   - categories
+   - attachments  
+4. Enable RLS on:
+   - profiles
+   - contents  
+5. Create storage bucket:
+   - `content-files`
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4️⃣ Setup Environment Variables
+Create `.env.local`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 5️⃣ Run Development Server
+```bash
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+App runs at:
+
+```
+http://localhost:3000
+```
+
+---
+
+## 🧪 Test Accounts
+For demonstration purposes:
+### 👑 Admin
+Email: admin@kalbe.com  
+Password: kalbe123  
+
+### ✍️ Creator
+Email: creator@kalbe.com  
+Password: kalbe123  
+
+### 🔍 Reviewer
+Email: reviewer@kalbe.com  
+Password: kalbe123  
+
+⚠️ These accounts are seeded for testing purposes only.
+
+---
+
+## 🎯 Learning Outcomes
+- RBAC implementation
+- Secure RLS enforcement
+- Workflow-based system design
+- Middleware authentication guard
+- TanStack Table integration
+- Supabase integration
+- Relational database modeling
+
+---
+
+## 📄 License
+Educational Project – Mini Project #1
