@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useRouter } from "next/navigation";
 
 import {
 	Container,
@@ -19,6 +20,7 @@ import {
 import { LockKeyhole, Mail, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
+	const router = useRouter();
 	// ===== State =====
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -43,9 +45,10 @@ export default function LoginPage() {
 			return;
 		}
 
-		// Redirect setelah login sukses
-		console.log("Login success:", data);
-		window.location.href = "/dashboard";
+		if (data.user) {
+			console.log("REDIRECTING...");
+			window.location.href = "/dashboard";
+		}
 	};
 
 	return (
