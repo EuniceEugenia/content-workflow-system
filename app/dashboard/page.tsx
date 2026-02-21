@@ -21,7 +21,6 @@ import EditContentModal from "@/components/EditContentModal";
 import type { DashboardStats } from "@/types/stats";
 import type { ContentListItem } from "@/types/content";
 
-
 export default function DashboardPage() {
 	const router = useRouter();
 
@@ -32,7 +31,8 @@ export default function DashboardPage() {
 	const [loading, setLoading] = useState(true);
 	const [isLoggingOut, setIsLoggingOut] = useState(false);
 	const [openModal, setOpenModal] = useState(false);
-	const [selectedContent, setSelectedContent] = useState<ContentListItem | null>(null);
+	const [selectedContent, setSelectedContent] =
+		useState<ContentListItem | null>(null);
 	const [openEditModal, setOpenEditModal] = useState(false);
 	const [stats, setStats] = useState<DashboardStats | null>(null);
 
@@ -81,6 +81,11 @@ export default function DashboardPage() {
 					(profile.roles as unknown as { name: string } | null)?.name ?? null;
 
 				setRole(roleName);
+
+				if (!roleName) {
+					router.push("/");
+					return;
+				}
 
 				let query = supabase
 					.from("contents")
@@ -155,6 +160,10 @@ export default function DashboardPage() {
 
 	// Logika Akses Dinamis: Membatasi fitur berdasarkan peran
 	const canCreateContent = role === "Admin" || role === "Creator";
+
+	const isAdmin = role === "Admin";
+	const isCreator = role === "Creator";
+	const isReviewer = role === "Reviewer";
 
 	if (loading || isLoggingOut) {
 		return (
