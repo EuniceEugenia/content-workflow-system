@@ -1,14 +1,14 @@
-# Content Workflow System  
+# 🖥️ Content Workflow System  
 Mini Project #1 – Frontend Development
 
-A Role-Based Content Management System (CMS) built with **Next.js (App Router)** and **Supabase**.
+A Role-Based Content Management System (CMS) built with **Next.js (App Router)** and **Supabase** that simulates a real-world content approval pipeline where different user roles interact through a controlled workflow secured by database-level policies.
 
 This project implements:
 - Authentication  
 - Role-Based Access Control (RBAC)  
 - CRUD Operations  
 - Workflow System  
-- Table Features (Pagination, Sorting, Search)  
+- Table Features (Pagination, Sorting, Search, Page Size)  
 - Storage Integration  
 - Row Level Security (RLS)  
 - Middleware Protection  
@@ -17,19 +17,19 @@ This project implements:
 
 ## 🏗 Tech Stack
 
-### Core
-- Next.js (App Router)
-- Supabase (PostgreSQL + Auth + Storage)
+### 🚀 Core
+![Next.js](https://img.shields.io/badge/Next.js-App%20Router-000000?logo=next.js)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase&logoColor=white)
 
-### UI & State
-- Material UI
-- TailwindCSS
-- TanStack Table
+### 🎨 UI & State
+![Material UI](https://img.shields.io/badge/MUI-Material%20UI-007FFF?logo=mui&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-Utility%20First-38B2AC?logo=tailwindcss&logoColor=white)
+![TanStack Table](https://img.shields.io/badge/TanStack-Table-FF4154)
 
-### Dev Tools
-- ESLint
-- Prettier
-- Git
+### 🛠 Development Tools
+![ESLint](https://img.shields.io/badge/ESLint-Code%20Linting-4B32C3?logo=eslint&logoColor=white)
+![Prettier](https://img.shields.io/badge/Prettier-Code%20Formatter-F7B93E?logo=prettier&logoColor=black)
+![Git](https://img.shields.io/badge/Git-Version%20Control-F05032?logo=git&logoColor=white)
 
 ---
 
@@ -65,8 +65,9 @@ Authorization enforced in:
 ---
 
 ### 4️⃣ Workflow System
+
 Draft → Review → Approved → Published  
-↘ Rejected  
+↘ Rejected → Back to Creator
 
 Flow:
 - Creator creates **Draft**
@@ -88,6 +89,7 @@ All transitions are protected by RLS policies.
 ---
 
 ## 🗄 Supabase Configuration
+<img width="994" height="711" alt="Supabase Schema CWS" src="https://github.com/user-attachments/assets/710cbaf1-9ca2-458b-9907-878a0f4a8ee3" />
 
 ### 📌 Tables (Minimum 5 – Excluding `auth.users`)
 1. roles  
@@ -118,7 +120,7 @@ Example policies:
 - Admin can publish Approved content
 - Reviewer cannot delete content
 
-Database-level protection ensures security even if frontend is bypassed.
+All access control is enforced at the database level to ensure security even if frontend restrictions are bypassed.
 
 ---
 
@@ -149,6 +151,15 @@ Database-level protection ensures security even if frontend is bypassed.
 | id | title | body | status | author_id | reviewer_id | category_id | created_at | file_path |
 
 ---
+
+## 🏛 Architecture Overview
+
+Authentication → Supabase Auth  
+Authorization → Role-based access via `profiles` & `roles`  
+Data Access → Supabase with Row Level Security (RLS)  
+Frontend Protection → Middleware + Conditional Rendering  
+Storage → Supabase Bucket (`content-files`)
+
 
 ## ▶️ How To Run
 
@@ -208,7 +219,9 @@ http://localhost:3000
 ---
 
 ## 🧪 Test Accounts
-For demonstration purposes:
+The following accounts are pre-seeded in the database for demonstration and RBAC testing purposes.
+These accounts are manually created in Supabase and mapped to specific roles to simulate real workflow scenarios.
+
 ### 👑 Admin
 Email: admin@kalbe.com  
 Password: kalbe123  
@@ -221,20 +234,41 @@ Password: kalbe123
 Email: reviewer@kalbe.com  
 Password: kalbe123  
 
-⚠️ These accounts are seeded for testing purposes only.
+---
+
+## 🎥 Demo Presentation
+A complete walkthrough of the system (from login to published content) is available in the presentation below:
+
+📎 **Demo Slide (PPT):**
+https://www.canva.com/design/DAHCEPQ4vP4/wM1i1BcgEwIJfITyV90BXA/view?utm_content=DAHCEPQ4vP4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hccc4ade8b9
+
+This demo covers:
+- Authentication & RBAC implementation  
+- End-to-end workflow (Draft → Review → Approved → Published)  
+- Table features (Sorting, Searching, Pagination)  
+- Supabase configuration (RLS & RPC)  
+
+---
+
+## 📹 Demo Video (Coming Soon)
+A short video demonstration showcasing the full workflow in real-time (Creator → Reviewer → Admin).
+
+The video link will be updated here once available.
+
+The video will highlight:
+- Role-based dashboard experience  
+- Content approval flow  
+- Status transitions  
+- Table interaction (search, sort, pagination)
 
 ---
 
 ## 🎯 Learning Outcomes
-- RBAC implementation
-- Secure RLS enforcement
-- Workflow-based system design
-- Middleware authentication guard
-- TanStack Table integration
-- Supabase integration
-- Relational database modeling
-
----
+- Implemented secure RBAC using Supabase
+- Enforced Row Level Security (RLS)
+- Designed workflow-based content lifecycle
+- Integrated TanStack Table with advanced features
+- Structured a role-aware dashboard experience
 
 ## 📄 License
-Educational Project – Mini Project #1
+Educational Project – Mini Project #1 - Eunice
