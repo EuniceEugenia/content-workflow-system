@@ -252,18 +252,20 @@ export default function DashboardPage() {
 					className="p-8 md:p-12 rounded-[24px] border border-slate-200 bg-white relative overflow-hidden"
 				>
 					<div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 opacity-60" />
+
+					{/* HEADER */}
 					<Box className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
 						<Box>
-							<Typography className="font-black text-slate-900 mb-2 tracking-tight text-4xl">
-								Dashboard
+							<Typography className="font-black text-slate-900 mb-1 tracking-tight text-4xl">
+								{role} Dashboard
 							</Typography>
+
 							<Typography className="text-slate-500 font-medium text-lg">
 								Selamat datang kembali,{" "}
 								<span className="text-blue-600 font-bold">{user?.email}</span>
 							</Typography>
 						</Box>
 
-						{/* Menampilkan tombol aksi berdasarkan peran pengguna */}
 						{canCreateContent && (
 							<Button
 								variant="contained"
@@ -283,6 +285,31 @@ export default function DashboardPage() {
 						)}
 					</Box>
 
+					{/* STATS SECTION */}
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+						<StatsCard
+							label="Draft"
+							count={stats?.draft || 0}
+							color="#64748b"
+						/>
+						<StatsCard
+							label="Review"
+							count={stats?.review || 0}
+							color="#f59e0b"
+						/>
+						<StatsCard
+							label="Published"
+							count={stats?.published || 0}
+							color="#2563eb"
+						/>
+						<StatsCard
+							label="Rejected"
+							count={stats?.rejected || 0}
+							color="#e11d48"
+						/>
+					</div>
+
+					{/* TABLE */}
 					<Box className="mt-12">
 						<ContentTable
 							data={contents}
@@ -299,27 +326,6 @@ export default function DashboardPage() {
 						/>
 					</Box>
 				</Paper>
-				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-					<StatsCard label="Draft" count={stats?.draft || 0} color="#64748b" />
-
-					<StatsCard
-						label="Review"
-						count={stats?.review || 0}
-						color="#f59e0b"
-					/>
-
-					<StatsCard
-						label="Published"
-						count={stats?.published || 0}
-						color="#2563eb"
-					/>
-
-					<StatsCard
-						label="Rejected"
-						count={stats?.rejected || 0}
-						color="#e11d48"
-					/>
-				</div>
 			</Container>
 
 			<CreateContentModal
