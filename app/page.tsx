@@ -52,15 +52,24 @@ export default function LoginPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+		<div className="relative min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 flex items-center justify-center p-6 overflow-hidden">
+			<div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl"></div>
+			<div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-400/30 rounded-full blur-3xl"></div>
 			<Container maxWidth="xs">
 				<Paper
 					elevation={0}
-					className="p-8 rounded-3xl border border-slate-200 shadow-2xl shadow-slate-200/50 bg-white"
+					sx={{
+						background: "rgba(255,255,255,0.35)",
+						backdropFilter: "blur(20px)",
+						WebkitBackdropFilter: "blur(20px)",
+						border: "1px solid rgba(255,255,255,0.3)",
+						boxShadow: "0 20px 60px rgba(0,0,0,0.08)",
+					}}
+					className="p-10 rounded-3xl shadow-2xl"
 				>
 					{/* Header */}
-					<Box className="flex flex-col items-center mb-8">
-						<div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center text-white mb-4 shadow-xl shadow-blue-500/30">
+					<Box className="flex flex-col items-center mb-10">
+						<div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center text-white mb-4 shadow-xl shadow-blue-500/30 ring-4 ring-white/40">
 							<LockKeyhole size={28} />
 						</div>
 						<Typography variant="h5" className="font-black text-slate-800">
@@ -83,7 +92,7 @@ export default function LoginPage() {
 					)}
 
 					{/* Login Form */}
-					<form onSubmit={handleLogin} className="space-y-5">
+					<form onSubmit={handleLogin} className="flex flex-col gap-4 mt-4">
 						<TextField
 							fullWidth
 							label="Email"
@@ -99,7 +108,23 @@ export default function LoginPage() {
 									</InputAdornment>
 								),
 							}}
-							sx={{ "& .MuiOutlinedInput-root": { borderRadius: "12px" } }}
+							sx={{
+								"& .MuiOutlinedInput-root": {
+									borderRadius: "14px",
+									backgroundColor: "rgba(255,255,255,0.6)",
+									backdropFilter: "blur(6px)",
+									transition: "all 0.3s ease",
+								},
+								"& .MuiOutlinedInput-notchedOutline": {
+									borderColor: "rgba(148,163,184,0.4)",
+								},
+								"&:hover .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#3b82f6",
+								},
+								"& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2563eb",
+								},
+							}}
 						/>
 
 						<TextField
@@ -122,7 +147,23 @@ export default function LoginPage() {
 									</InputAdornment>
 								),
 							}}
-							sx={{ "& .MuiOutlinedInput-root": { borderRadius: "12px" } }}
+							sx={{
+								"& .MuiOutlinedInput-root": {
+									borderRadius: "14px",
+									backgroundColor: "rgba(255,255,255,0.6)",
+									backdropFilter: "blur(6px)",
+									transition: "all 0.3s ease",
+								},
+								"& .MuiOutlinedInput-notchedOutline": {
+									borderColor: "rgba(148,163,184,0.4)",
+								},
+								"&:hover .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#3b82f6",
+								},
+								"& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: "#2563eb",
+								},
+							}}
 						/>
 
 						<Button
@@ -131,7 +172,7 @@ export default function LoginPage() {
 							type="submit"
 							size="large"
 							disabled={loading}
-							className="bg-blue-600 hover:bg-blue-700 py-4 rounded-xl normal-case font-bold"
+							className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 py-4 rounded-xl normal-case font-semibold shadow-lg shadow-blue-500/30 transition-all duration-300 hover:shadow-blue-500/50 active:scale-[0.98]"
 						>
 							{loading ? (
 								<CircularProgress size={24} color="inherit" />
@@ -142,9 +183,9 @@ export default function LoginPage() {
 					</form>
 
 					{/* Footer */}
-					<Box className="mt-10 pt-6 border-t border-slate-100 text-center">
+					<Box className="mt-10 pt-6 border-t border-white/40 text-center">
 						<Typography variant="caption" className="text-slate-400">
-							© 2026 Content Workflow System · Built with Next.js & Supabase
+							© 2026 Content Workflow System
 						</Typography>
 					</Box>
 				</Paper>
